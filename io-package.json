@@ -1,8 +1,11 @@
 {
   "common": {
     "name": "quickscript",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "news": {
+      "0.2.3": {
+        "en": "Add automatic Redis/States DB reconnection and subscription replay"
+      },
       "0.2.2": {
         "en": "Unified single-file hybrid .node/ELF binaries for linux-arm64 and linux-x64"
       },

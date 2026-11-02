@@ -51,6 +51,9 @@ pub unsafe extern "C" fn napi_register_module_v1(
 // ============================================================================
 
 struct RespConn {
+    host: String,
+    port: u16,
+    read_timeout: Option<Duration>,
     reader: BufReader<TcpStream>,
     writer: TcpStream,
 }
@@ -66,9 +69,22 @@ impl RespConn {
             .try_clone()
             .map_err(|e| format!("Failed to clone stream: {}", e))?;
         Ok(Self {
+            host: host.to_string(),
+            port,
+            read_timeout,
             reader: BufReader::new(stream),
             writer,
         })
+    }
+
+    fn reconnect(&mut self) -> bool {
+        if let Ok(new_conn) = Self::connect(&self.host, self.port, self.read_timeout) {
+            self.reader = new_conn.reader;
+            self.writer = new_conn.writer;
+            true
+        } else {
+            false
+        }
     }
 
     fn send_cmd(&mut self, args: &[&str]) -> Result<(), String> {
@@ -89,10 +105,16 @@ impl RespConn {
 
     fn read_resp(&mut self) -> Result<RespValue, String> {
         let mut line = String::new();
-        let n = self
-            .reader
-            .read_line(&mut line)
-            .map_err(|e| format!("Read error: {}", e))?;
+        let n = match self.reader.read_line(&mut line) {
+            Ok(n) => n,
+            Err(e)
+                if e.kind() == std::io::ErrorKind::WouldBlock
+                    || e.kind() == std::io::ErrorKind::TimedOut =>
+            {
+                return Err("TIMEOUT".to_string());
+            }
+            Err(e) => return Err(format!("Read error: {}", e)),
+        };
         if n == 0 {
             return Err("EOF".to_string());
         }
@@ -135,8 +157,16 @@ impl RespConn {
     }
 
     fn cmd(&mut self, args: &[&str]) -> Result<RespValue, String> {
-        self.send_cmd(args)?;
-        self.read_resp()
+        if self.send_cmd(args).is_ok() {
+            if let Ok(res) = self.read_resp() {
+                return Ok(res);
+            }
+        }
+        if self.reconnect() {
+            self.send_cmd(args)?;
+            return self.read_resp();
+        }
+        Err("Connection lost and reconnect failed".to_string())
     }
 
     fn get_str(&mut self, key: &str) -> Option<String> {
@@ -1115,88 +1145,112 @@ fn main() {
     let mut last_cron_minute: Option<(u32, u32, u32)> = None;
 
     loop {
-        // 1. Drain incoming Redis pub/sub messages
-        while let Ok(msg) = sub_conn.read_resp() {
-            if let RespValue::Array(items) = msg {
-                if items.len() >= 4 && items[0].as_str() == Some("pmessage") {
-                    let channel = items[2].as_str().unwrap_or("");
-                    let payload = items[3].as_str().unwrap_or("");
+        // 1. Drain incoming Redis pub/sub messages (auto-reconnect on EOF / socket error)
+        loop {
+            match sub_conn.read_resp() {
+                Ok(RespValue::Array(items)) => {
+                    if items.len() >= 4 && items[0].as_str() == Some("pmessage") {
+                        let channel = items[2].as_str().unwrap_or("");
+                        let payload = items[3].as_str().unwrap_or("");
 
-                    if channel == sigkill_chan {
-                        if let Ok(v) = serde_json::from_str::<JsonValue>(payload) {
-                            let kill_val = v["val"].as_i64().unwrap_or(0);
-                            if kill_val == -1 || (kill_val > 0 && kill_val as u32 != std::process::id()) {
-                                let mut st = shared.lock().unwrap();
-                                st.log("info", "sigKill received, shutting down cleanly");
-                                st.set_foreign_state(&format!("{}.info.connection", namespace), "false", true, None);
-                                st.set_foreign_state(&format!("{}.alive", instance_id), "false", true, None);
-                                st.set_foreign_state(&format!("{}.connected", instance_id), "false", true, None);
-                                std::process::exit(0);
-                            }
-                        }
-                        continue;
-                    }
-
-                    if channel.starts_with("io.system.adapter.") && channel.ends_with(".logging") {
-                        let id_part = channel.trim_start_matches(STATES_PREFIX);
-                        let target = id_part.trim_end_matches(".logging").to_string();
-                        if target != instance_id {
+                        if channel == sigkill_chan {
                             if let Ok(v) = serde_json::from_str::<JsonValue>(payload) {
-                                let mut st = shared.lock().unwrap();
-                                if v["val"] == json!(true) || v["val"] == json!("true") {
-                                    st.log_targets.insert(target);
-                                } else {
-                                    st.log_targets.remove(&target);
+                                let kill_val = v["val"].as_i64().unwrap_or(0);
+                                if kill_val == -1 || (kill_val > 0 && kill_val as u32 != std::process::id()) {
+                                    let mut st = shared.lock().unwrap();
+                                    st.log("info", "sigKill received, shutting down cleanly");
+                                    st.set_foreign_state(&format!("{}.info.connection", namespace), "false", true, None);
+                                    st.set_foreign_state(&format!("{}.alive", instance_id), "false", true, None);
+                                    st.set_foreign_state(&format!("{}.connected", instance_id), "false", true, None);
+                                    std::process::exit(0);
                                 }
                             }
+                            continue;
                         }
-                        continue;
-                    }
 
-                    if let Some(state_id) = channel.strip_prefix(STATES_PREFIX) {
-                        if let Ok(new_state) = serde_json::from_str::<JsonValue>(payload) {
-                            let mut callbacks_to_fire: Vec<(u32, String)> = Vec::new();
-                            {
-                                let mut st = shared.lock().unwrap();
-                                let old_state = st
-                                    .last_states
-                                    .insert(state_id.to_string(), new_state.clone())
-                                    .unwrap_or(JsonValue::Null);
-
-                                for sub in &st.subs {
-                                    if !sub.patterns.iter().any(|p| glob_match(p, state_id)) {
-                                        continue;
+                        if channel.starts_with("io.system.adapter.") && channel.ends_with(".logging") {
+                            let id_part = channel.trim_start_matches(STATES_PREFIX);
+                            let target = id_part.trim_end_matches(".logging").to_string();
+                            if target != instance_id {
+                                if let Ok(v) = serde_json::from_str::<JsonValue>(payload) {
+                                    let mut st = shared.lock().unwrap();
+                                    if v["val"] == json!(true) || v["val"] == json!("true") {
+                                        st.log_targets.insert(target);
+                                    } else {
+                                        st.log_targets.remove(&target);
                                     }
-                                    if let Some(req_ack) = sub.ack {
-                                        if new_state["ack"].as_bool() != Some(req_ack) {
+                                }
+                            }
+                            continue;
+                        }
+
+                        if let Some(state_id) = channel.strip_prefix(STATES_PREFIX) {
+                            if let Ok(new_state) = serde_json::from_str::<JsonValue>(payload) {
+                                let mut callbacks_to_fire: Vec<(u32, String)> = Vec::new();
+                                {
+                                    let mut st = shared.lock().unwrap();
+                                    let old_state = st
+                                        .last_states
+                                        .insert(state_id.to_string(), new_state.clone())
+                                        .unwrap_or(JsonValue::Null);
+
+                                    for sub in &st.subs {
+                                        if !sub.patterns.iter().any(|p| glob_match(p, state_id)) {
                                             continue;
                                         }
+                                        if let Some(req_ack) = sub.ack {
+                                            if new_state["ack"].as_bool() != Some(req_ack) {
+                                                continue;
+                                            }
+                                        }
+                                        if sub.change == "ne" && !old_state.is_null() && old_state["val"] == new_state["val"] {
+                                            continue;
+                                        }
+                                        if sub.change == "gt" && !(new_state["val"].as_f64() > old_state["val"].as_f64()) {
+                                            continue;
+                                        }
+                                        if sub.change == "lt" && !(new_state["val"].as_f64() < old_state["val"].as_f64()) {
+                                            continue;
+                                        }
+                                        let event_json = json!({
+                                            "id": state_id,
+                                            "state": new_state,
+                                            "oldState": old_state,
+                                        })
+                                        .to_string();
+                                        callbacks_to_fire.push((sub.cb_id, event_json));
                                     }
-                                    if sub.change == "ne" && !old_state.is_null() && old_state["val"] == new_state["val"] {
-                                        continue;
-                                    }
-                                    if sub.change == "gt" && !(new_state["val"].as_f64() > old_state["val"].as_f64()) {
-                                        continue;
-                                    }
-                                    if sub.change == "lt" && !(new_state["val"].as_f64() < old_state["val"].as_f64()) {
-                                        continue;
-                                    }
-                                    let event_json = json!({
-                                        "id": state_id,
-                                        "state": new_state,
-                                        "oldState": old_state,
-                                    })
-                                    .to_string();
-                                    callbacks_to_fire.push((sub.cb_id, event_json));
                                 }
-                            }
-                            if let Some(ref eng) = engine {
-                                for (cb_id, ev) in callbacks_to_fire {
-                                    eng.invoke_callback(cb_id, Some(ev));
+                                if let Some(ref eng) = engine {
+                                    for (cb_id, ev) in callbacks_to_fire {
+                                        eng.invoke_callback(cb_id, Some(ev));
+                                    }
                                 }
                             }
                         }
                     }
+                }
+                Ok(_) => {}
+                Err(ref e) if e == "TIMEOUT" => break,
+                Err(_) => {
+                    // PubSub socket disconnected — reconnect and replay all subscriptions
+                    if sub_conn.reconnect() {
+                        let _ = sub_conn.send_cmd(&["psubscribe", &sigkill_chan, "io.system.adapter.*.logging"]);
+                        let pats: Vec<String> = {
+                            let st = shared.lock().unwrap();
+                            st.subs
+                                .iter()
+                                .flat_map(|s| s.patterns.iter().map(|p| format!("{}{}", STATES_PREFIX, p)))
+                                .collect()
+                        };
+                        for pat in pats {
+                            let _ = sub_conn.send_cmd(&["psubscribe", &pat]);
+                        }
+                        shared.lock().unwrap().log("info", "Reconnected to States PubSub and restored subscriptions");
+                    } else {
+                        std::thread::sleep(Duration::from_millis(500));
+                    }
+                    break;
                 }
             }
         }
