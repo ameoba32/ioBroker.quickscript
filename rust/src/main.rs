@@ -312,7 +312,7 @@ impl SharedState {
             .as_millis() as u64;
         let payload = json!({
             "_id": self.log_seq,
-            "from": format!("{} ({})", self.namespace, pid),
+            "from": self.namespace,
             "ts": ts,
             "severity": level,
             "message": format!("{} ({}) {}", self.namespace, pid, msg),

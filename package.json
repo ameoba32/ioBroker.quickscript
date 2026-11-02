@@ -1,6 +1,6 @@
 {
   "name": "iobroker.quickscript",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Executes plain .js files directly from disk using native Rust + QuickJS (~2.5 MB RAM) with instant hot-reload",
   "author": {
     "name": "Constantin Bosneaga",
