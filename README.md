@@ -124,5 +124,7 @@ Install the adapter via the ioBroker Admin web interface:
 ---
 
 ## License
-MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License
+
+Copyright (c) 2026 Constantin Bosneaga <c.bosneaga@gmail.com>
 
