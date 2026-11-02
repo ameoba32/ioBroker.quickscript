@@ -1,0 +1,38 @@
+{
+  "name": "iobroker.quickscript",
+  "version": "0.1.0",
+  "description": "Executes plain .js files directly from disk in Compact Mode with hot-reload and zero UI bloat",
+  "author": {
+    "name": "Constantin Bosneaga",
+    "email": "c.bosneaga@xsolla.com"
+  },
+  "homepage": "https://github.com/ameoba32/ioBroker.quickscript",
+  "license": "MIT",
+  "keywords": [
+    "ioBroker",
+    "quickscript",
+    "scripts",
+    "automation",
+    "javascript",
+    "SmartHome"
+  ],
+  "main": "main.js",
+  "exports": {
+    ".": "./main.js",
+    "./compat.js": "./compat.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ameoba32/ioBroker.quickscript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ameoba32/ioBroker.quickscript/issues"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.2.2",
+    "node-cron": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

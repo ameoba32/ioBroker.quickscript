@@ -1,0 +1,31 @@
+{
+  "i18n": false,
+  "type": "panel",
+  "items": {
+    "_header": {
+      "type": "header",
+      "text": {
+        "en": "QuickScript",
+        "ru": "QuickScript"
+      },
+      "size": 3
+    },
+    "scriptsDir": {
+      "type": "text",
+      "label": {
+        "en": "Scripts directory path on disk",
+        "ru": "Путь к папке со скриптами (.js) на диске"
+      },
+      "help": {
+        "en": "Leave empty to use the default ioBroker data dir (<iobroker-data>/quickscripts). All *.js files inside are watched and hot-reloaded on save / git pull.",
+        "ru": "Оставьте пустым для стандартной папки данных ioBroker (<iobroker-data>/quickscripts). Все файлы *.js внутри автоматически перезагружаются при сохранении или git pull."
+      },
+      "default": "",
+      "xs": 12,
+      "sm": 12,
+      "md": 10,
+      "lg": 8,
+      "xl": 8
+    }
+  }
+}

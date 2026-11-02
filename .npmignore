@@ -1,0 +1,6 @@
+.github/
+.git/
+.DS_Store
+*.log
+scripts/
+admin/quickscript-preview.png

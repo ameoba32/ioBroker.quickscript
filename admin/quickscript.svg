@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <!-- Bright sky-blue gradient background -->
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f0f9ff"/>
+      <stop offset="50%" stop-color="#e0f2fe"/>
+      <stop offset="100%" stop-color="#bae6fd"/>
+    </linearGradient>
+    <!-- Golden-amber lightning bolt gradient -->
+    <linearGradient id="bolt" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+    <!-- Deep navy-indigo gradient for QS letters -->
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0369a1" flood-opacity="0.20"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded bright card -->
+  <rect x="4" y="4" width="120" height="120" rx="26" fill="url(#bg)" stroke="#38bdf8" stroke-width="4"/>
+
+  <!-- Top lightning bolt (centered horizontally, y: 10..56 — zero overlap with text) -->
+  <path d="M70 10 L46 36 L63 36 L55 58 L84 30 L66 30 Z"
+        fill="url(#bolt)" stroke="#ffffff" stroke-width="2.5" stroke-linejoin="round" filter="url(#shadow)"/>
+
+  <!-- Bottom large bold QS letters (centered horizontally, y: 62..112) -->
+  <text x="64" y="110"
+        font-family="system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif"
+        font-weight="900"
+        font-size="64"
+        letter-spacing="-2"
+        fill="url(#textGrad)"
+        stroke="#ffffff"
+        stroke-width="3.5"
+        paint-order="stroke"
+        text-anchor="middle"
+        filter="url(#shadow)">QS</text>
+</svg>

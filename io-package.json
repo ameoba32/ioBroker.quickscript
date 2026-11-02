@@ -1,0 +1,127 @@
+{
+  "common": {
+    "name": "quickscript",
+    "version": "0.1.0",
+    "news": {
+      "0.1.0": {
+        "en": "initial release",
+        "de": "Erstveröffentlichung",
+        "ru": "Начальная версия",
+        "pt": "lançamento inicial",
+        "nl": "Eerste uitgave",
+        "fr": "Première version",
+        "it": "Versione iniziale",
+        "es": "Versión inicial",
+        "pl": "Pierwsze wydanie",
+        "uk": "Початкова версія",
+        "zh-cn": "首次出版"
+      }
+    },
+    "titleLang": {
+      "en": "QuickScript",
+      "de": "QuickScript",
+      "ru": "QuickScript",
+      "pt": "QuickScript",
+      "nl": "QuickScript",
+      "fr": "QuickScript",
+      "it": "QuickScript",
+      "es": "QuickScript",
+      "pl": "QuickScript",
+      "uk": "QuickScript",
+      "zh-cn": "QuickScript"
+    },
+    "desc": {
+      "en": "Executes plain .js files directly from disk in Compact Mode with hot-reload and zero UI bloat",
+      "de": "Führt einfache .js-Dateien direkt von der Festplatte im Kompaktmodus mit Hot-Reload aus",
+      "ru": "Выполняет .js файлы прямо с диска в Compact Mode с авто-перезагрузкой и без лишнего UI",
+      "pt": "Executa arquivos .js simples diretamente do disco no Modo Compacto com recarregamento automático",
+      "nl": "Voert gewone .js-bestanden rechtstreeks vanaf de schijf uit in Compact Mode met hot-reload",
+      "fr": "Exécute des fichiers .js simples directement depuis le disque en mode compact avec rechargement à chaud",
+      "it": "Esegue semplici file .js direttamente dal disco in modalità compatta con ricaricamento a caldo",
+      "es": "Ejecuta archivos .js simples directamente desde el disco en modo compacto con recarga en caliente",
+      "pl": "Wykonuje zwykłe pliki .js bezpośrednio z dysku w trybie kompaktowym z funkcją hot-reload",
+      "uk": "Виконує .js файли прямо з диска в Compact Mode з авто-перезавантаженням",
+      "zh-cn": "在紧凑模式下直接从磁盘执行纯 .js 文件并支持热重载"
+    },
+    "authors": [
+      "Constantin Bosneaga <c.bosneaga@xsolla.com>"
+    ],
+    "keywords": [
+      "quickscript",
+      "scripts",
+      "automation",
+      "javascript",
+      "git",
+      "compact"
+    ],
+    "licenseInformation": {
+      "type": "free",
+      "license": "MIT"
+    },
+    "platform": "Javascript/Node.js",
+    "mode": "daemon",
+    "icon": "quickscript.svg",
+    "enabled": true,
+    "extIcon": "https://raw.githubusercontent.com/ameoba32/ioBroker.quickscript/main/admin/quickscript.svg",
+    "readme": "https://github.com/ameoba32/ioBroker.quickscript/blob/main/README.md",
+    "loglevel": "info",
+    "tier": 2,
+    "type": "script",
+    "compact": true,
+    "connectionType": "local",
+    "dataSource": "push",
+    "adminUI": {
+      "config": "json"
+    },
+    "dependencies": [
+      {
+        "js-controller": ">=5.0.19"
+      }
+    ],
+    "globalDependencies": [
+      {
+        "admin": ">=6.17.14"
+      }
+    ]
+  },
+  "native": {
+    "scriptsDir": ""
+  },
+  "objects": [],
+  "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "role": "indicator.connected",
+        "name": "If QuickScript runner is active",
+        "type": "boolean",
+        "read": true,
+        "write": false,
+        "def": false
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.scriptsLoaded",
+      "type": "state",
+      "common": {
+        "role": "value",
+        "name": "Number of active .js scripts loaded from disk",
+        "type": "number",
+        "read": true,
+        "write": false,
+        "def": 0
+      },
+      "native": {}
+    }
+  ]
+}
