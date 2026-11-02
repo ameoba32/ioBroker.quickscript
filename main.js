@@ -3,8 +3,23 @@
 const utils = require('@iobroker/adapter-core');
 const fs = require('node:fs');
 const path = require('node:path');
+const Module = require('node:module');
 const { pathToFileURL } = require('node:url');
 const cron = require('node-cron');
+
+if (typeof Module.registerHooks === 'function') {
+    Module.registerHooks({
+        resolve(specifier, context, nextResolve) {
+            if (specifier === 'iobroker.quickscript') {
+                return { url: pathToFileURL(__filename).href, shortCircuit: true };
+            }
+            if (specifier === 'iobroker.quickscript/compat.js' || specifier === 'iobroker.quickscript/compat') {
+                return { url: pathToFileURL(path.join(__dirname, 'compat.js')).href, shortCircuit: true };
+            }
+            return nextResolve(specifier, context);
+        },
+    });
+}
 
 let activeInstance = null;
 
