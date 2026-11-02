@@ -66,7 +66,7 @@
     "readme": "https://github.com/ameoba32/ioBroker.quickscript/blob/main/README.md",
     "loglevel": "info",
     "tier": 2,
-    "type": "script",
+    "type": "logic",
     "compact": true,
     "connectionType": "local",
     "dataSource": "push",
@@ -75,12 +75,12 @@
     },
     "dependencies": [
       {
-        "js-controller": ">=5.0.19"
+        "js-controller": ">=6.0.11"
       }
     ],
     "globalDependencies": [
       {
-        "admin": ">=6.17.14"
+        "admin": ">=7.6.20"
       }
     ]
   },
