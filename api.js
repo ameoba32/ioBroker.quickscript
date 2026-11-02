@@ -140,7 +140,10 @@ function sendTo(instance, command, message, callback) {
 
 function trackedSetTimeout(fn, ms, ...args) {
     const entry = { type: 'timeout', handle: null };
-    entry.handle = setTimeout(() => {
+    const timerFn = activeAdapter && typeof activeAdapter.setTimeout === 'function'
+        ? activeAdapter.setTimeout.bind(activeAdapter)
+        : globalThis.setTimeout;
+    entry.handle = timerFn(() => {
         activeTimers.delete(entry);
         fn(...args);
     }, ms);
@@ -150,17 +153,24 @@ function trackedSetTimeout(fn, ms, ...args) {
 
 function trackedClearTimeout(entryOrHandle) {
     if (!entryOrHandle) return;
+    const clearFn = activeAdapter && typeof activeAdapter.clearTimeout === 'function'
+        ? activeAdapter.clearTimeout.bind(activeAdapter)
+        : globalThis.clearTimeout;
     if (typeof entryOrHandle === 'object' && 'handle' in entryOrHandle) {
-        clearTimeout(entryOrHandle.handle);
+        clearFn(entryOrHandle.handle);
         activeTimers.delete(entryOrHandle);
     } else {
-        clearTimeout(entryOrHandle);
+        clearFn(entryOrHandle);
     }
 }
 
 function trackedSetInterval(fn, ms, ...args) {
     const entry = { type: 'interval', handle: null };
-    entry.handle = setInterval(() => {
+    const intervalFn = activeAdapter && typeof activeAdapter.setInterval === 'function'
+        ? activeAdapter.setInterval.bind(activeAdapter)
+        : globalThis.setInterval;
+    entry.handle = intervalFn(() => {
+        activeTimers.delete(entry);
         fn(...args);
     }, ms);
     activeTimers.add(entry);
@@ -169,11 +179,14 @@ function trackedSetInterval(fn, ms, ...args) {
 
 function trackedClearInterval(entryOrHandle) {
     if (!entryOrHandle) return;
+    const clearFn = activeAdapter && typeof activeAdapter.clearInterval === 'function'
+        ? activeAdapter.clearInterval.bind(activeAdapter)
+        : globalThis.clearInterval;
     if (typeof entryOrHandle === 'object' && 'handle' in entryOrHandle) {
-        clearInterval(entryOrHandle.handle);
+        clearFn(entryOrHandle.handle);
         activeTimers.delete(entryOrHandle);
     } else {
-        clearInterval(entryOrHandle);
+        clearFn(entryOrHandle);
     }
 }
 

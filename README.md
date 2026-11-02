@@ -95,11 +95,9 @@ schedule('0 7 * * 1-5', async () => {
 
 ## Installation
 
-### From GitHub (Latest Release):
-```bash
-iobroker url https://github.com/ameoba32/ioBroker.quickscript
-iobroker restart quickscript.0
-```
+Install the adapter via the ioBroker Admin web interface:
+1. Open the **Adapters** tab in ioBroker Admin.
+2. Search for **QuickScript** and click the **+** (Add) icon.
 
 ---
 
@@ -126,6 +124,5 @@ iobroker restart quickscript.0
 ---
 
 ## License
-MIT License
+MIT License - see the [LICENSE](LICENSE) file for details.
 
-Copyright (c) 2026 Constantin Bosneaga <c.bosneaga@xsolla.com>
