@@ -346,7 +346,17 @@ impl SharedState {
         let now = Local::now();
         let now_str = now.format("%Y-%m-%d %H:%M:%S%.3f");
         let pid = std::process::id();
-        let formatted_line = format!("{}  - {}: {} ({}) {}\n", now_str, level, self.namespace, pid, msg);
+        let colored_level = match level {
+            "error" => "\x1b[31merror\x1b[39m",
+            "warn" => "\x1b[33mwarn\x1b[39m",
+            "debug" => "\x1b[34mdebug\x1b[39m",
+            "silly" => "\x1b[35msilly\x1b[39m",
+            _ => "\x1b[32minfo\x1b[39m",
+        };
+        let formatted_line = format!(
+            "{}  - {}: {} ({}) {}\n",
+            now_str, colored_level, self.namespace, pid, msg
+        );
         print!("{}", formatted_line);
         let _ = std::io::stdout().flush();
 
