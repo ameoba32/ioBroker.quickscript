@@ -34,7 +34,6 @@ class QuickScript extends utils.Adapter {
         this.scriptsDir = '';
         this.watcher = null;
         this.reloadTimer = null;
-        this.cleanupCallbacks = [];
 
         this.on('ready', this.onReady.bind(this));
         this.on('unload', this.onUnload.bind(this));
@@ -55,35 +54,26 @@ class QuickScript extends utils.Adapter {
         }
 
         await this.subscribeForeignStatesAsync('*');
-        await this.reloadAllScripts();
+        await this.loadRootScripts();
         this.startWatcher();
 
         await this.setStateAsync('info.connection', true, true);
     }
 
-    onCleanup(fn) {
-        this.cleanupCallbacks.push(fn);
-    }
-
-    async runCleanup() {
-        for (const fn of this.cleanupCallbacks) {
-            try {
-                await fn();
-            } catch (err) {
-                this.log.error(`Cleanup error: ${err.stack || err.message}`);
-            }
-        }
-        this.cleanupCallbacks = [];
-    }
-
-    async reloadAllScripts() {
-        await this.runCleanup();
-
+    async loadRootScripts() {
         let files = [];
         try {
+            // Only load top-level *.js / *.mjs files in scriptsDir (ignore subdirectories).
+            // Scripts in subdirectories (e.g. ./lib/heating-lib.js) are loaded only when imported!
             files = fs
-                .readdirSync(this.scriptsDir)
-                .filter((f) => (f.endsWith('.js') || f.endsWith('.mjs')) && !f.startsWith('.') && !f.startsWith('_'))
+                .readdirSync(this.scriptsDir, { withFileTypes: true })
+                .filter(
+                    (dirent) =>
+                        dirent.isFile() &&
+                        (dirent.name.endsWith('.js') || dirent.name.endsWith('.mjs')) &&
+                        !dirent.name.startsWith('.')
+                )
+                .map((dirent) => dirent.name)
                 .sort();
         } catch (err) {
             this.log.error(`Failed to read scripts directory ${this.scriptsDir}: ${err.message}`);
@@ -91,12 +81,10 @@ class QuickScript extends utils.Adapter {
         }
 
         let loaded = 0;
-        const cacheBuster = Date.now();
         for (const file of files) {
             const fullPath = path.join(this.scriptsDir, file);
             try {
-                const fileUrl = `${pathToFileURL(fullPath).href}?t=${cacheBuster}`;
-                await import(fileUrl);
+                await import(pathToFileURL(fullPath).href);
                 loaded++;
                 this.log.info(`Loaded script: ${file}`);
             } catch (err) {
@@ -110,24 +98,24 @@ class QuickScript extends utils.Adapter {
     startWatcher() {
         if (this.watcher) this.watcher.close();
         try {
-            this.watcher = fs.watch(this.scriptsDir, { persistent: false }, (eventType, filename) => {
+            // Watch both root scripts and subdirectories (e.g. ./lib/) — on any .js change, restart the adapter process cleanly
+            this.watcher = fs.watch(this.scriptsDir, { persistent: false, recursive: true }, (eventType, filename) => {
                 if (filename && !filename.endsWith('.js') && !filename.endsWith('.mjs')) return;
                 if (this.reloadTimer) this.clearTimeout(this.reloadTimer);
                 this.reloadTimer = this.setTimeout(() => {
-                    this.log.info(`Detected change in ${filename || this.scriptsDir}, hot-reloading scripts...`);
-                    this.reloadAllScripts();
-                }, 200);
+                    this.log.info(`Detected change in ${filename || this.scriptsDir}, restarting QuickScript process...`);
+                    this.restart();
+                }, 300);
             });
         } catch (err) {
             this.log.error(`Failed to watch ${this.scriptsDir}: ${err.message}`);
         }
     }
 
-    async onUnload(callback) {
+    onUnload(callback) {
         try {
             if (this.watcher) this.watcher.close();
             if (this.reloadTimer) this.clearTimeout(this.reloadTimer);
-            await this.runCleanup();
             this.setState('info.connection', false, true);
             callback();
         } catch {

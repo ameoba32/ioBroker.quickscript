@@ -4,7 +4,7 @@
  * compat.js — Optional compatibility layer for scripts migrated from `iobroker.javascript`.
  *
  * Usage in any script:
- *   import { getState, setState, on, schedule, sendTo, log, onStop } from 'iobroker.quickscript/compat.js';
+ *   import { getState, setState, on, schedule, sendTo, log } from 'iobroker.quickscript/compat.js';
  */
 
 const { getAdapter, cron } = require('./main.js');
@@ -86,7 +86,7 @@ function on(patternOrOpts, callback) {
                       .replace(/\*/g, '.*')}$`
               );
 
-    const listener = (id, state) => {
+    adapter.on('stateChange', (id, state) => {
         if (!state || !regex.test(id)) return;
         const oldState = stateCache.get(id) || { val: undefined };
         if (changeMode === 'ne' && oldState.val !== undefined && state.val === oldState.val) return;
@@ -101,29 +101,16 @@ function on(patternOrOpts, callback) {
             lc: state.lc,
             from: state.from,
         });
-    };
-
-    adapter.on('stateChange', listener);
-    adapter.onCleanup(() => adapter.removeListener('stateChange', listener));
+    });
 }
 
 function schedule(cronExpr, callback) {
-    const adapter = getAdapter();
-    const task = cron.schedule(cronExpr, callback);
-    if (adapter) {
-        adapter.onCleanup(() => task.stop());
-    }
-    return task;
+    return cron.schedule(cronExpr, callback);
 }
 
 function sendTo(instance, command, message, callback) {
     const adapter = getAdapter();
     adapter.sendTo(instance, command, message, callback);
-}
-
-function onStop(callback) {
-    const adapter = getAdapter();
-    if (adapter) adapter.onCleanup(callback);
 }
 
 module.exports = {
@@ -137,5 +124,4 @@ module.exports = {
     subscribe: on,
     schedule,
     sendTo,
-    onStop,
 };
