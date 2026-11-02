@@ -21,6 +21,32 @@ const LOG_PREFIX: &str = "log.";
 const STATUS_EXPIRE_SECONDS: u64 = 25;
 
 // ============================================================================
+// Dual-mode entry point: when loaded via Node.js `require()`, Node calls
+// `napi_register_module_v1`, which immediately `execv`s this same binary,
+// replacing the 140 MB Node.js process in-place under the exact same PID!
+// ============================================================================
+
+#[no_mangle]
+pub unsafe extern "C" fn napi_register_module_v1(
+    _env: *mut std::ffi::c_void,
+    _exports: *mut std::ffi::c_void,
+) -> *mut std::ffi::c_void {
+    let mut info: libc::Dl_info = std::mem::zeroed();
+    if libc::dladdr(napi_register_module_v1 as *const std::ffi::c_void, &mut info) != 0
+        && !info.dli_fname.is_null()
+    {
+        let inst = env::var("IOB_INSTANCE").unwrap_or_else(|_| "0".to_string());
+        if let Ok(c_inst) = std::ffi::CString::new(inst) {
+            let _ = std::io::stdout().flush();
+            let _ = std::io::stderr().flush();
+            let args = [info.dli_fname, c_inst.as_ptr(), std::ptr::null()];
+            libc::execv(info.dli_fname, args.as_ptr());
+        }
+    }
+    std::ptr::null_mut()
+}
+
+// ============================================================================
 // Minimal, zero-overhead Redis RESP2 client for ioBroker's lowercase protocol
 // ============================================================================
 

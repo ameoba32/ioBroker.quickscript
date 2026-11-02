@@ -585,6 +585,7 @@ name = "quickscript-rs"
 version = "0.1.0"
 dependencies = [
  "chrono",
+ "libc",
  "rquickjs",
  "serde",
  "serde_json",

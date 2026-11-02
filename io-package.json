@@ -1,8 +1,11 @@
 {
   "common": {
     "name": "quickscript",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "news": {
+      "0.2.2": {
+        "en": "Unified single-file hybrid .node/ELF binaries for linux-arm64 and linux-x64"
+      },
       "0.2.1": {
         "en": "Fix startup log message prefix format for Admin UI"
       },

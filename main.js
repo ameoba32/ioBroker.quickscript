@@ -4,8 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
 
-const BIN_PATH = path.join(__dirname, 'bin', `quickscript-${process.platform}-${process.arch}`);
-const EXECVE_ADDON_PATH = path.join(__dirname, 'bin', `execve-${process.platform}-${process.arch}.node`);
+const BIN_PATH = path.join(__dirname, 'bin', `quickscript-${process.platform}-${process.arch}.node`);
 
 function resolveInstanceNumber() {
     if (process.env.IOB_INSTANCE !== undefined) {
@@ -62,19 +61,17 @@ function startCompactBridge(options = {}) {
 if (require.main !== module) {
     module.exports = options => startCompactBridge(options);
 } else {
-    const instance = resolveInstanceNumber();
+    process.env.IOB_INSTANCE = resolveInstanceNumber();
     try {
         fs.chmodSync(BIN_PATH, 0o755);
     } catch {
         // ignore
     }
 
-    if (fs.existsSync(EXECVE_ADDON_PATH) && fs.existsSync(BIN_PATH)) {
-        const execReplace = require(EXECVE_ADDON_PATH);
-        execReplace(BIN_PATH, instance);
-    } else if (fs.existsSync(BIN_PATH)) {
-        const child = spawn(BIN_PATH, [instance], { stdio: 'inherit' });
-        child.on('exit', code => process.exit(code ?? 0));
+    if (fs.existsSync(BIN_PATH)) {
+        // Single hybrid binary: require() invokes napi_register_module_v1 inside the binary,
+        // which immediately execv()s itself in-place, replacing Node.js under the same PID!
+        require(BIN_PATH);
     } else {
         console.error(`Native binary not found for ${process.platform}-${process.arch}: ${BIN_PATH}`);
         process.exit(1);
