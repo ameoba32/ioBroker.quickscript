@@ -6,7 +6,16 @@
       "type": "header",
       "text": {
         "en": "QuickScript",
-        "ru": "QuickScript"
+        "de": "QuickScript",
+        "ru": "QuickScript",
+        "pt": "QuickScript",
+        "nl": "QuickScript",
+        "fr": "QuickScript",
+        "it": "QuickScript",
+        "es": "QuickScript",
+        "pl": "QuickScript",
+        "uk": "QuickScript",
+        "zh-cn": "QuickScript"
       },
       "size": 3
     },
@@ -14,11 +23,29 @@
       "type": "text",
       "label": {
         "en": "Scripts directory path on disk",
-        "ru": "Путь к папке со скриптами (.js) на диске"
+        "de": "Pfad zum Skriptverzeichnis auf der Festplatte",
+        "ru": "Путь к папке со скриптами (.js) на диске",
+        "pt": "Caminho do diretório de scripts no disco",
+        "nl": "Pad naar scriptmap op schijf",
+        "fr": "Chemin du répertoire des scripts sur le disque",
+        "it": "Percorso della directory degli script su disco",
+        "es": "Ruta del directorio de scripts en el disco",
+        "pl": "Ścieżka do katalogu skryptów na dysku",
+        "uk": "Шлях до папки зі скриптами (.js) на диску",
+        "zh-cn": "磁盘上的脚本目录路径"
       },
       "help": {
         "en": "Leave empty to use the default ioBroker data dir (<iobroker-data>/quickscripts). All *.js files inside are watched and hot-reloaded on save / git pull.",
-        "ru": "Оставьте пустым для стандартной папки данных ioBroker (<iobroker-data>/quickscripts). Все файлы *.js внутри автоматически перезагружаются при сохранении или git pull."
+        "de": "Leer lassen, um das Standard-ioBroker-Datenverzeichnis (<iobroker-data>/quickscripts) zu verwenden. Alle *.js-Dateien werden bei Änderungen automatisch neu geladen.",
+        "ru": "Оставьте пустым для стандартной папки данных ioBroker (<iobroker-data>/quickscripts). Все файлы *.js внутри автоматически перезагружаются при сохранении или git pull.",
+        "pt": "Deixe em branco para usar o diretório de dados padrão do ioBroker (<iobroker-data>/quickscripts). Todos os arquivos *.js são recarregados automaticamente.",
+        "nl": "Laat leeg om de standaard ioBroker-gegevensmap (<iobroker-data>/quickscripts) te gebruiken. Alle *.js-bestanden worden automatisch herladen.",
+        "fr": "Laisser vide pour utiliser le répertoire de données ioBroker par défaut (<iobroker-data>/quickscripts). Tous les fichiers *.js sont rechargés à chaud.",
+        "it": "Lasciare vuoto per usare la directory dati predefinita di ioBroker (<iobroker-data>/quickscripts). Tutti i file *.js vengono ricaricati automaticamente.",
+        "es": "Déjelo vacío para usar el directorio de datos predeterminado de ioBroker (<iobroker-data>/quickscripts). Todos los archivos *.js se recargan automáticamente.",
+        "pl": "Pozostaw puste, aby użyć domyślnego katalogu danych ioBroker (<iobroker-data>/quickscripts). Wszystkie pliki *.js są automatycznie przeładowywane.",
+        "uk": "Залиште порожнім для стандартної папки даних ioBroker (<iobroker-data>/quickscripts). Усі файли *.js всередині автоматично перезавантажуються.",
+        "zh-cn": "留空以使用默认的 ioBroker 数据目录 (<iobroker-data>/quickscripts)。内部所有 *.js 文件在保存时会自动热重载。"
       },
       "default": "",
       "xs": 12,

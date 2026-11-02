@@ -21,6 +21,14 @@
     ".": "./main.js",
     "./compat.js": "./compat.js"
   },
+  "files": [
+    "admin/",
+    "main.js",
+    "compat.js",
+    "io-package.json",
+    "LICENSE",
+    "README.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ameoba32/ioBroker.quickscript.git"

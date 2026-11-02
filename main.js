@@ -1,9 +1,9 @@
 'use strict';
 
 const utils = require('@iobroker/adapter-core');
-const fs = require('fs');
-const path = require('path');
-const { pathToFileURL } = require('url');
+const fs = require('node:fs');
+const path = require('node:path');
+const { pathToFileURL } = require('node:url');
 const cron = require('node-cron');
 
 let activeInstance = null;
@@ -97,8 +97,8 @@ class QuickScript extends utils.Adapter {
         try {
             this.watcher = fs.watch(this.scriptsDir, { persistent: false }, (eventType, filename) => {
                 if (filename && !filename.endsWith('.js') && !filename.endsWith('.mjs')) return;
-                if (this.reloadTimer) clearTimeout(this.reloadTimer);
-                this.reloadTimer = setTimeout(() => {
+                if (this.reloadTimer) this.clearTimeout(this.reloadTimer);
+                this.reloadTimer = this.setTimeout(() => {
                     this.log.info(`Detected change in ${filename || this.scriptsDir}, hot-reloading scripts...`);
                     this.reloadAllScripts();
                 }, 200);
@@ -111,7 +111,7 @@ class QuickScript extends utils.Adapter {
     async onUnload(callback) {
         try {
             if (this.watcher) this.watcher.close();
-            if (this.reloadTimer) clearTimeout(this.reloadTimer);
+            if (this.reloadTimer) this.clearTimeout(this.reloadTimer);
             await this.runCleanup();
             this.setState('info.connection', false, true);
             callback();
