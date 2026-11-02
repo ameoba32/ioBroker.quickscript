@@ -17,74 +17,38 @@ Designed for users and AI agents who want to keep automation scripts as plain `.
 
 * **Plain files on disk / Git-friendly:** Edit `.js` files with any IDE, AI agent, or sync them via Git / Resilio Sync.
 * **Compact Mode native (`"compact": true`):** Runs inside an existing ioBroker compact group without spawning an extra Node.js process (~1–2 MB RAM).
-* **Hot-Reload (`fs.watch`):** Automatically cleans up previous listeners/cron jobs and reloads scripts within milliseconds whenever a `.js` file is saved.
-* **Zero Global Pollution:** Clean ES Module `import` syntax — choose between direct native ioBroker `adapter` API or the optional `compat.js` helper for scripts migrated from `iobroker.javascript`.
+* **Selective State Subscriptions:** Subscribes only to the specific state IDs used in your `on(...)` calls instead of loading the entire database into memory.
+* **Automatic Hot-Reload (`fs.watch`):** Watches both root scripts and library subfolders (e.g. `./lib/`). On any file change, automatically cleans up previous listeners, cron jobs, and timers, then reloads scripts and modified libraries with fresh cache timestamps.
 
 ---
 
-## Configuration
+## Folder Structure
 
-In the instance settings (**Admin -> Instances -> quickscript.0**):
-* **Scripts directory path on disk (`scriptsDir`):** Path to the folder containing your `*.js` scripts. If left empty, defaults to `<iobroker-data>/quickscripts` (e.g. `/opt/iobroker/iobroker-data/quickscripts`).
-
-Files starting with `_` or `.` are ignored by the auto-runner so you can store shared helper modules in the same folder and import them via standard ES `import`.
+* **Root directory (`scriptsDir`):** Only top-level `*.js` files in the root folder are executed automatically as automation scripts.
+* **Subdirectories (e.g. `lib/`):** Files in subdirectories are not executed on their own — import them from your root scripts using standard ES `import { ... } from './lib/my-helper.js'`.
 
 ---
 
-## Usage Examples
-
-### Option 1: Direct Native ioBroker API (`iobroker.quickscript`)
+## Usage Example
 
 ```javascript
-import { getAdapter, cron } from 'iobroker.quickscript';
+import { getState, setState, on, schedule, sendTo, log, setTimeout, clearTimeout } from 'iobroker.quickscript';
 
-const adapter = getAdapter();
+log('Automation script started');
 
-// Read and write states using native ioBroker adapter methods:
-const outdoor = await adapter.getForeignStateAsync('0_userdata.0.outsideTemp');
-adapter.log.info(`Outdoor temp: ${outdoor?.val}`);
-
-// Listen to state changes:
-const onStateChange = async (id, state) => {
-    if (id === '0_userdata.0.test_trigger' && state && !state.ack) {
-        await adapter.setForeignStateAsync('0_userdata.0.test_response', {
-            val: `Handled at ${new Date().toISOString()}`,
-            ack: true,
-        });
-    }
-};
-adapter.on('stateChange', onStateChange);
-
-// Schedule cron tasks via node-cron:
-const job = cron.schedule('*/5 * * * *', async () => {
-    await adapter.setForeignStateAsync('zwave2.0.Node_004.Thermostat_Setpoint.setpoint_heating', 21);
-});
-
-// Cleanup hook before hot-reload or adapter stop:
-adapter.onCleanup(() => {
-    adapter.removeListener('stateChange', onStateChange);
-    job.stop();
-});
-```
-
-### Option 2: Compatibility Layer (`iobroker.quickscript/compat.js`)
-
-For quick migration of existing scripts from `iobroker.javascript`:
-
-```javascript
-import { getState, setState, on, schedule, sendTo, log, onStop } from 'iobroker.quickscript/compat.js';
-
-on('zigbee.0.a4c138a03abaa4b0.brightness_step_up', (obj) => {
+// 1. Listen to state changes (automatically subscribes and cleans up on hot-reload):
+on('zigbee.0.a4c138a03abaa4b0.brightness_step_up', async (obj) => {
     if (obj.val === true) {
-        const cur = getState('zwave2.0.Node_024.Multilevel_Switch.targetValue').val || 0;
-        setState('zwave2.0.Node_024.Multilevel_Switch.targetValue', Math.min(99, cur + 5));
+        const cur = (await getState('zwave2.0.Node_024.Multilevel_Switch.targetValue')).val || 0;
+        await setState('zwave2.0.Node_024.Multilevel_Switch.targetValue', Math.min(99, Number(cur) + 5));
     }
 });
 
+// 2. Schedule cron tasks via node-cron (automatically stopped on hot-reload):
 schedule('0 * * 1-3,12 *', async () => {
     const res = await fetch('https://example.com/data.json');
     const data = await res.json();
-    log(`Loaded ${data.length} items`);
+    sendTo('telegram.0', 'send', { text: `Loaded ${data.length} items` });
 });
 ```
 

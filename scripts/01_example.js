@@ -1,29 +1,18 @@
-// Example 1: Using native ioBroker adapter API + node-cron directly (Zero overhead)
-import { getAdapter, cron } from 'iobroker.quickscript';
+// Example script for ioBroker.quickscript
+// All listeners, cron jobs, and timers imported from 'iobroker.quickscript'
+// are automatically cleaned up on hot-reload!
 
-const adapter = getAdapter();
+import { getState, setState, on, schedule, log } from 'iobroker.quickscript';
 
-adapter.log.info('01_example.js started with native ioBroker API');
+log('01_example.js started');
 
-// 1. Listen to state changes using native adapter event:
-const onStateChange = async (id, state) => {
-    if (id === '0_userdata.0.test_trigger' && state && !state.ack) {
-        adapter.log.info(`Trigger changed to: ${state.val}`);
-        await adapter.setForeignStateAsync('0_userdata.0.test_response', {
-            val: `Handled at ${new Date().toISOString()}`,
-            ack: true,
-        });
-    }
-};
-adapter.on('stateChange', onStateChange);
-
-// 2. Schedule cron job via node-cron:
-const job = cron.schedule('*/30 * * * *', () => {
-    adapter.log.info('30-minute cron tick');
+// 1. Subscribe to state changes:
+on('0_userdata.0.test_trigger', async (obj) => {
+    log(`Trigger changed to: ${obj.val}`);
+    await setState('0_userdata.0.test_response', `Handled at ${new Date().toISOString()}`, true);
 });
 
-// 3. Register cleanup before hot-reload / stop:
-adapter.onCleanup(() => {
-    adapter.removeListener('stateChange', onStateChange);
-    job.stop();
+// 2. Schedule cron job:
+schedule('*/30 * * * *', () => {
+    log('30-minute cron tick');
 });

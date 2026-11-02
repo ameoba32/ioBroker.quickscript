@@ -18,13 +18,14 @@
   ],
   "main": "main.js",
   "exports": {
-    ".": "./main.js",
-    "./compat.js": "./compat.js"
+    ".": "./api.js",
+    "./api.js": "./api.js",
+    "./main.js": "./main.js"
   },
   "files": [
     "admin/",
     "main.js",
-    "compat.js",
+    "api.js",
     "io-package.json",
     "LICENSE",
     "README.md"
