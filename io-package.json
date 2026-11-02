@@ -67,7 +67,7 @@
     "loglevel": "info",
     "tier": 2,
     "type": "logic",
-    "compact": true,
+    "compact": false,
     "connectionType": "local",
     "dataSource": "push",
     "adminUI": {

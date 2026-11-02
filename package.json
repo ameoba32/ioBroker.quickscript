@@ -1,7 +1,7 @@
 {
   "name": "iobroker.quickscript",
   "version": "0.1.0",
-  "description": "Executes plain .js files directly from disk in Compact Mode with hot-reload and zero UI bloat",
+  "description": "Executes plain .js files directly from disk using native Rust + QuickJS (~2.5 MB RAM) with instant hot-reload",
   "author": {
     "name": "Constantin Bosneaga",
     "email": "c.bosneaga@xsolla.com"
@@ -24,6 +24,7 @@
   },
   "files": [
     "admin/",
+    "bin/",
     "main.js",
     "api.js",
     "io-package.json",
@@ -44,8 +45,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "@iobroker/adapter-core": "^3.4.3",
-    "node-cron": "^3.0.3"
+    "@iobroker/adapter-core": "^3.4.3"
   },
   "devDependencies": {
     "@iobroker/testing": "^6.3.0"
