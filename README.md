@@ -36,6 +36,16 @@ Designed for users, developers, and AI agents who want to manage automation scri
 
 ---
 
+## Requirements
+
+* **Operating system:** Linux only, `x64` or `arm64`. The native engine links against glibc and uses `execv()`.
+* **ioBroker:** js-controller 6.0.0 or newer.
+* **Node.js:** 22 or newer.
+
+macOS and Windows are not supported: the prebuilt native binary exists for Linux only.
+
+---
+
 ## Directory Structure
 
 Point the adapter configuration to your scripts directory (or use the default path):

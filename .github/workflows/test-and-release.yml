@@ -32,7 +32,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest]
         node-version: [22.x, 24.x, 26.x]
     steps:
       - uses: ioBroker/testing-action-adapter@v1
@@ -41,7 +41,6 @@ jobs:
           os: ${{ matrix.os }}
           package-cache: 'false'
           install-command: 'npm install'
-          test-command: 'npm run test:package'
 
   deploy:
     needs: [check-and-lint, adapter-tests]

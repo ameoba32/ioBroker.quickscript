@@ -1,6 +1,6 @@
 {
   "name": "iobroker.quickscript",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Executes plain .js files directly from disk using native Rust + QuickJS (~2.5 MB RAM) with instant hot-reload",
   "author": {
     "name": "Constantin Bosneaga",
@@ -16,6 +16,31 @@
     "javascript",
     "SmartHome"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ameoba32/ioBroker.quickscript.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ameoba32/ioBroker.quickscript/issues"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "os": [
+    "linux"
+  ],
+  "dependencies": {
+    "@iobroker/adapter-core": "^3.4.3"
+  },
+  "devDependencies": {
+    "@iobroker/testing": "^6.3.0"
+  },
+  "scripts": {
+    "test:package": "mocha test/package",
+    "test:integration": "mocha test/integration --exit",
+    "test": "npm run test:package && npm run test:integration",
+    "lint": "eslint ."
+  },
   "main": "main.js",
   "exports": {
     "./main.js": "./main.js"
@@ -29,27 +54,5 @@
     "AGENTS.md",
     "LICENSE",
     "README.md"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ameoba32/ioBroker.quickscript.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ameoba32/ioBroker.quickscript/issues"
-  },
-  "scripts": {
-    "test:package": "mocha test/package",
-    "test:integration": "mocha test/package",
-    "test": "npm run test:package",
-    "lint": "eslint ."
-  },
-  "dependencies": {
-    "@iobroker/adapter-core": "^3.4.3"
-  },
-  "devDependencies": {
-    "@iobroker/testing": "^6.3.0"
-  },
-  "engines": {
-    "node": ">=22.0.0"
-  }
+  ]
 }

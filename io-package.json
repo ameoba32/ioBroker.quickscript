@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "quickscript",
-    "version": "0.2.6",
+    "version": "0.2.7",
     "news": {
+      "0.2.7": {
+        "en": "Linux-only support declared explicitly, real integration test added",
+        "de": "Linux-only-Unterstützung explizit erklärt, echter Integrationstest ergänzt",
+        "ru": "Явно указана поддержка только Linux, добавлен настоящий интеграционный тест",
+        "pt": "Suporte apenas a Linux declarado, teste de integração real adicionado",
+        "nl": "Alleen Linux-ondersteuning expliciet, echte integratietest toegevoegd",
+        "fr": "Prise en charge Linux uniquement déclarée, vrai test d'intégration ajouté",
+        "it": "Supporto solo Linux dichiarato, aggiunto test di integrazione reale",
+        "es": "Soporte solo para Linux declarado, prueba de integración real añadida",
+        "pl": "Jawne wsparcie tylko dla Linuksa, dodany prawdziwy test integracyjny",
+        "uk": "Явно вказано підтримку лише Linux, додано справжній інтеграційний тест",
+        "zh-cn": "明确声明仅支持 Linux，新增真实集成测试"
+      },
       "0.2.6": {
         "en": "Official repository readiness: user guides under docs/, releases published from GitHub Actions with npm provenance",
         "de": "Bereit für das offizielle Repository: Handbücher unter docs/, Releases aus GitHub Actions mit npm-Provenance",
