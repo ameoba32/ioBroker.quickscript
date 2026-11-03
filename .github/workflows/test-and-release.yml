@@ -42,3 +42,25 @@ jobs:
           package-cache: 'false'
           install-command: 'npm install'
           test-command: 'npm run test:package'
+
+  deploy:
+    needs: [check-and-lint, adapter-tests]
+    # Publish only on a version tag, e.g. after `npm run release patch`
+    if: |
+      !cancelled() &&
+      needs.check-and-lint.result == 'success' &&
+      needs.adapter-tests.result == 'success' &&
+      startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: ioBroker/testing-action-deploy@v1
+        with:
+          node-version: '22.x'
+          package-cache: 'false'
+          install-command: 'npm install'
+          # npm-token is empty on purpose: npm Trusted Publishing uses OIDC
+          npm-token: ''
+          github-token: ${{ secrets.GITHUB_TOKEN }}

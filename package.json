@@ -18,15 +18,13 @@
   ],
   "main": "main.js",
   "exports": {
-    ".": "./api.js",
-    "./api.js": "./api.js",
     "./main.js": "./main.js"
   },
   "files": [
     "admin/",
     "bin/",
+    "docs/",
     "main.js",
-    "api.js",
     "io-package.json",
     "AGENTS.md",
     "LICENSE",

@@ -15,73 +15,9 @@
         "pl": "Dodano kody kolorów ANSI do wpisów pliku dziennika",
         "uk": "Додано колірні коди ANSI до записів файлу журналу",
         "zh-cn": "在日志文件条目中添加 ANSI 颜色代码"
-      },
-      "0.2.3": {
-        "en": "Add automatic Redis/States DB reconnection and subscription replay",
-        "de": "Automatische Redis/States DB-Wiederverbindung und Wiederholung von Abonnements hinzugefügt",
-        "ru": "Добавлено автоматическое переподключение к Redis/States DB и повторная подписка",
-        "pt": "Reconexão automática do Redis e repetição de assinaturas",
-        "nl": "Automatische Redis-herverbinding en opnieuw abonneren toegevoegd",
-        "fr": "Reconnexion automatique à Redis et réabonnement ajoutés",
-        "it": "Aggiunta la riconnessione automatica a Redis e la ripetizione delle sottoscrizioni",
-        "es": "Reconexión automática a Redis y reproducción de suscripciones añadidas",
-        "pl": "Dodano automatyczne ponowne łączenie z Redis i ponawianie subskrypcji",
-        "uk": "Додано автоматичне повторне підключення до Redis і повторну підписку",
-        "zh-cn": "添加自动 Redis 重连与订阅重放"
-      },
-      "0.2.2": {
-        "en": "Unified single-file hybrid .node/ELF binaries for linux-arm64 and linux-x64",
-        "de": "Einheitliche hybride .node/ELF-Binärdateien für linux-arm64 und linux-x64",
-        "ru": "Единые гибридные .node/ELF бинарники для linux-arm64 и linux-x64",
-        "pt": "Binários híbridos .node/ELF unificados para linux-arm64 e linux-x64",
-        "nl": "Geünificeerde hybride .node/ELF binaire bestanden voor linux-arm64 en linux-x64",
-        "fr": "Binaires hybrides .node/ELF unifiés pour linux-arm64 et linux-x64",
-        "it": "Binari ibridi .node/ELF unificati per linux-arm64 e linux-x64",
-        "es": "Binarios híbridos .node/ELF unificados para linux-arm64 y linux-x64",
-        "pl": "Zunifikowane binarne pliki hybrydowe .node/ELF dla linux-arm64 i linux-x64",
-        "uk": "Єдині гібридні .node/ELF бінарні файли для linux-arm64 та linux-x64",
-        "zh-cn": "适用于 linux-arm64 和 linux-x64 的统一单文件混合 .node/ELF 二进制文件"
-      },
-      "0.2.1": {
-        "en": "Fix startup log message prefix format for Admin UI",
-        "de": "Präfixformat der Startprotokollnachricht für Admin-UI behoben",
-        "ru": "Исправлен формат префикса сообщений журнала при запуске для Admin UI",
-        "pt": "Formato de prefixo de mensagem de log corrigido",
-        "nl": "Voorvoegselformaat van logbericht gecorrigeerd",
-        "fr": "Format de préfixe de message de journal corrigé",
-        "it": "Corretto il formato del prefisso del messaggio di registro",
-        "es": "Formato de prefijo de mensaje de registro corregido",
-        "pl": "Naprawiono format prefiksu wiadomości dziennika",
-        "uk": "Виправлено формат префікса повідомлення журналу",
-        "zh-cn": "修复管理界面的启动日志消息前缀格式"
-      },
-      "0.2.0": {
-        "en": "Native Rust + QuickJS engine (2.5 MB RAM)",
-        "de": "Natives Rust + QuickJS-Engine (2.5 MB RAM)",
-        "ru": "Нативный движок Rust + QuickJS (2.5 МБ ОЗУ)",
-        "pt": "Motor nativo Rust + QuickJS (2.5 MB RAM)",
-        "nl": "Native Rust + QuickJS engine (2.5 MB RAM)",
-        "fr": "Moteur natif Rust + QuickJS (2.5 Mo de RAM)",
-        "it": "Motore nativo Rust + QuickJS (2.5 MB di RAM)",
-        "es": "Motor nativo Rust + QuickJS (2.5 MB RAM)",
-        "pl": "Natywny silnik Rust + QuickJS (2.5 MB RAM)",
-        "uk": "Нативний рушій Rust + QuickJS (2.5 МБ ОЗП)",
-        "zh-cn": "原生 Rust + QuickJS 引擎 (2.5 MB 内存)"
-      },
-      "0.1.0": {
-        "en": "initial release",
-        "de": "Erstveröffentlichung",
-        "ru": "Начальная версия",
-        "pt": "lançamento inicial",
-        "nl": "Eerste uitgave",
-        "fr": "Première version",
-        "it": "Versione iniziale",
-        "es": "Versión inicial",
-        "pl": "Pierwsze wydanie",
-        "uk": "Початкова версія",
-        "zh-cn": "首次出版"
       }
     },
+    "title": "QuickScript",
     "titleLang": {
       "en": "QuickScript",
       "de": "QuickScript",
@@ -122,6 +58,10 @@
     "licenseInformation": {
       "type": "free",
       "license": "MIT"
+    },
+    "docs": {
+      "en": "docs/en/README.md",
+      "de": "docs/de/README.md"
     },
     "platform": "Javascript/Node.js",
     "mode": "daemon",
