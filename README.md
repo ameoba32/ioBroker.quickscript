@@ -103,6 +103,9 @@ Install the adapter via the ioBroker Admin web interface:
 
 ## Changelog
 
+### 0.2.6 (2026-11-03)
+* Translate `common.news` into all languages (pt, nl, fr, it, es, pl, uk, zh-cn) as the repository checker requires.
+
 ### 0.2.5 (2026-11-03)
 * Add English and German user guide (`docs/en`, `docs/de`).
 * Add npm Trusted Publishing deploy job; releases are published from GitHub Actions with provenance.

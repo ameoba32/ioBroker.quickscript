@@ -1,12 +1,33 @@
 {
   "common": {
     "name": "quickscript",
-    "version": "0.2.5",
+    "version": "0.2.6",
     "news": {
+      "0.2.6": {
+        "en": "Official repository readiness: user guides under docs/, releases published from GitHub Actions with npm provenance",
+        "de": "Bereit für das offizielle Repository: Handbücher unter docs/, Releases aus GitHub Actions mit npm-Provenance",
+        "ru": "Готовность к официальному репозиторию: руководства в docs/, релизы из GitHub Actions с npm provenance",
+        "pt": "Pronto para o repositório oficial: manuais em docs/, versões publicadas pelo GitHub Actions com npm provenance",
+        "nl": "Klaar voor de officiële repository: handleidingen in docs/, releases via GitHub Actions met npm-provenance",
+        "fr": "Prêt pour le dépôt officiel : guides dans docs/, versions publiées par GitHub Actions avec npm provenance",
+        "it": "Pronto per il repository ufficiale: guide in docs/, release da GitHub Actions con npm provenance",
+        "es": "Listo para el repositorio oficial: guías en docs/, versiones publicadas desde GitHub Actions con npm provenance",
+        "pl": "Gotowe do oficjalnego repozytorium: instrukcje w docs/, wydania z GitHub Actions z npm provenance",
+        "uk": "Готовність до офіційного репозиторію: посібники в docs/, релізи з GitHub Actions з npm provenance",
+        "zh-cn": "已准备好加入官方仓库：docs/ 中的使用手册，由 GitHub Actions 发布并带 npm provenance 签名"
+      },
       "0.2.5": {
         "en": "Repository readiness: English and German user guide, npm Trusted Publishing deploy job, removed unused node-cron dependency",
         "de": "Repository-Reife: englisches und deutsches Handbuch, Deploy-Job mit npm Trusted Publishing, ungenutzte node-cron-Abhängigkeit entfernt",
-        "ru": "Готовность к официальному репозиторию: руководство на английском и немецком, deploy-джоб с npm Trusted Publishing, удалена неиспользуемая зависимость node-cron"
+        "ru": "Готовность к официальному репозиторию: руководство на английском и немецком, deploy-джоб с npm Trusted Publishing, удалена неиспользуемая зависимость node-cron",
+        "pt": "Preparação do repositório: manual em inglês e alemão, job de deploy com npm Trusted Publishing, dependência node-cron não usada removida",
+        "nl": "Repository-gereedheid: Engelse en Duitse handleiding, deploy-job met npm Trusted Publishing, ongebruikte node-cron-afhankelijkheid verwijderd",
+        "fr": "Préparation du dépôt : guide en anglais et en allemand, job de déploiement avec npm Trusted Publishing, dépendance node-cron inutilisée supprimée",
+        "it": "Preparazione del repository: guida in inglese e tedesco, job di deploy con npm Trusted Publishing, dipendenza node-cron inutilizzata rimossa",
+        "es": "Preparación del repositorio: guía en inglés y alemán, job de despliegue con npm Trusted Publishing, dependencia node-cron no usada eliminada",
+        "pl": "Przygotowanie repozytorium: instrukcja angielska i niemiecka, zadanie deploy z npm Trusted Publishing, usunięta nieużywana zależność node-cron",
+        "uk": "Підготовка репозиторію: посібник англійською та німецькою, deploy-джоб з npm Trusted Publishing, видалено невикористану залежність node-cron",
+        "zh-cn": "仓库准备：英文和德文使用手册，使用 npm Trusted Publishing 的部署任务，移除未使用的 node-cron 依赖"
       },
       "0.2.4": {
         "en": "Add ANSI color codes to log file entries for ioBroker.admin LogsWorker parser",
