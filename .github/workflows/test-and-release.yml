@@ -58,9 +58,8 @@ jobs:
     steps:
       - uses: ioBroker/testing-action-deploy@v1
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           package-cache: 'false'
           install-command: 'npm install'
-          # npm-token is empty on purpose: npm Trusted Publishing uses OIDC
-          npm-token: ''
+          # No npm-token: npm Trusted Publishing authenticates via OIDC
           github-token: ${{ secrets.GITHUB_TOKEN }}
