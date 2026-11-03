@@ -113,6 +113,11 @@ Install the adapter via the ioBroker Admin web interface:
 
 ## Changelog
 
+### 0.2.7 (2026-11-03)
+* Declare Linux-only support (`"os": ["linux"]` in `package.json`): the native binary exists for linux-x64 and linux-arm64.
+* Add a real integration test (`test/integration.js`) and use the standard `npm run test:integration` in the test workflow.
+* Document system requirements in the README.
+
 ### 0.2.6 (2026-11-03)
 * Translate `common.news` into all languages (pt, nl, fr, it, es, pl, uk, zh-cn) as the repository checker requires.
 
