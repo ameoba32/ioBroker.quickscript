@@ -33,7 +33,7 @@
     "@iobroker/adapter-core": "^3.4.3"
   },
   "devDependencies": {
-    "@iobroker/testing": "^6.3.0"
+    "@iobroker/testing": "^6.3.1"
   },
   "scripts": {
     "test:package": "mocha test/package",
