@@ -103,6 +103,11 @@ Install the adapter via the ioBroker Admin web interface:
 
 ## Changelog
 
+### 0.2.5 (2026-11-03)
+* Add English and German user guide (`docs/en`, `docs/de`).
+* Add npm Trusted Publishing deploy job; releases are published from GitHub Actions with provenance.
+* Remove unused `api.js` and the `node-cron` dependency: the SDK and the cron engine are built into the Rust binary.
+
 ### 0.2.4 (2026-11-02)
 * Add winston ANSI color sequences to log file entries for ioBroker.admin LogsWorker parser.
 

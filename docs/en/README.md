@@ -88,7 +88,7 @@ schedule('0 7 * * 1-5', () => log('Morning routine started'));
 
 ## 9. Changelog
 
-See [CHANGELOG.md](../../CHANGELOG.md) and the README.
+See the changelog section in [README.md](../../README.md#changelog).
 
 ## 10. License
 

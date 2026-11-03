@@ -1,8 +1,13 @@
 {
   "common": {
     "name": "quickscript",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "news": {
+      "0.2.5": {
+        "en": "Repository readiness: English and German user guide, npm Trusted Publishing deploy job, removed unused node-cron dependency",
+        "de": "Repository-Reife: englisches und deutsches Handbuch, Deploy-Job mit npm Trusted Publishing, ungenutzte node-cron-Abhängigkeit entfernt",
+        "ru": "Готовность к официальному репозиторию: руководство на английском и немецком, deploy-джоб с npm Trusted Publishing, удалена неиспользуемая зависимость node-cron"
+      },
       "0.2.4": {
         "en": "Add ANSI color codes to log file entries for ioBroker.admin LogsWorker parser",
         "de": "ANSI-Farbcodes zu Protokolldateieinträgen für den ioBroker.admin LogsWorker-Parser hinzugefügt",
