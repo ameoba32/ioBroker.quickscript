@@ -7,12 +7,13 @@ import { getState, setState, on, schedule, log } from 'iobroker.quickscript';
 log('01_example.js started');
 
 // 1. Subscribe to state changes:
-on('0_userdata.0.test_trigger', async (obj) => {
+on('0_userdata.0.test_trigger', async obj => {
     log(`Trigger changed to: ${obj.val}`);
     await setState('0_userdata.0.test_response', `Handled at ${new Date().toISOString()}`, true);
 });
 
-// 2. Schedule cron job:
-schedule('*/30 * * * *', () => {
-    log('30-minute cron tick');
+// 2. Schedule cron job and read a state inside it:
+schedule('*/30 * * * *', async () => {
+    const current = await getState('0_userdata.0.test_trigger');
+    log(`30-minute cron tick, current value: ${current ? current.val : 'not found'}`);
 });

@@ -63,7 +63,7 @@ import { getState, setState, on, schedule, sendTo, log } from 'iobroker.quickscr
 ```javascript
 import { getState, setState, on, schedule, log } from 'iobroker.quickscript';
 
-on('zigbee.0.sensor.temperature', async (obj) => {
+on('zigbee.0.sensor.temperature', async obj => {
     if (obj.val < 18) {
         await setState('heating.0.living_room.target', 21);
         log('Heating set to 21');
