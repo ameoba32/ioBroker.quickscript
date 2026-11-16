@@ -1,7 +1,7 @@
 {
     "common": {
         "name": "quickscript",
-        "version": "0.2.7",
+        "version": "0.2.8",
         "news": {
             "0.2.7": {
                 "en": "Linux-only support declared explicitly, real integration test added",

@@ -169,12 +169,16 @@ impl RespConn {
         Err("Connection lost and reconnect failed".to_string())
     }
 
-    fn get_str(&mut self, key: &str) -> Option<String> {
-        match self.cmd(&["get", key]).ok()? {
-            RespValue::Bulk(s) => Some(s),
-            RespValue::Simple(s) => Some(s),
-            _ => None,
+    fn get_str_checked(&mut self, key: &str) -> Result<Option<String>, String> {
+        match self.cmd(&["get", key])? {
+            RespValue::Bulk(s) => Ok(Some(s)),
+            RespValue::Simple(s) => Ok(Some(s)),
+            _ => Ok(None),
         }
+    }
+
+    fn get_str(&mut self, key: &str) -> Option<String> {
+        self.get_str_checked(key).ok().flatten()
     }
 }
 
@@ -394,14 +398,19 @@ impl SharedState {
 
     fn get_foreign_state(&mut self, id: &str) -> String {
         let key = format!("{}{}", STATES_PREFIX, id);
-        let raw = self.states_conn.get_str(&key);
-        if let Some(s) = raw {
-            if let Ok(v) = serde_json::from_str::<JsonValue>(&s) {
-                self.last_states.insert(id.to_string(), v);
+        let res = self.states_conn.get_str_checked(&key);
+        match res {
+            Ok(Some(s)) => {
+                if let Ok(v) = serde_json::from_str::<JsonValue>(&s) {
+                    self.last_states.insert(id.to_string(), v);
+                }
+                s
             }
-            s
-        } else {
-            "null".to_string()
+            Ok(None) => "null".to_string(),
+            Err(e) => {
+                self.log("error", &format!("State read failed for '{}': {}", id, e));
+                "null".to_string()
+            }
         }
     }
 
@@ -434,13 +443,20 @@ impl SharedState {
         })
         .to_string();
 
-        if let Some(exp) = expire_sec {
+        let write_res = if let Some(exp) = expire_sec {
             let exp_str = exp.to_string();
-            let _ = self.states_conn.cmd(&["setex", &key, &exp_str, &wire]);
+            self.states_conn.cmd(&["setex", &key, &exp_str, &wire])
         } else {
-            let _ = self.states_conn.cmd(&["set", &key, &wire]);
+            self.states_conn.cmd(&["set", &key, &wire])
+        };
+        if let Err(e) = write_res {
+            self.log("error", &format!("State write failed for '{}': {}", id, e));
+            return;
         }
-        let _ = self.states_conn.cmd(&["publish", &key, &wire]);
+        let pub_res = self.states_conn.cmd(&["publish", &key, &wire]);
+        if let Err(e) = pub_res {
+            self.log("error", &format!("State publish failed for '{}': {}", id, e));
+        }
     }
 
     fn send_to(&mut self, target: &str, command: &str, msg_json: &str) {
@@ -563,19 +579,31 @@ export default {
 "#;
 
 const BOOTSTRAP_GLOBALS_JS: &str = r#"
+globalThis.__qs_script_name = '';
 globalThis.__qs_callbacks = new Map();
 globalThis.__qs_next_cb_id = 1;
 globalThis.__qs_register_cb = function(fn) {
     const id = globalThis.__qs_next_cb_id++;
-    globalThis.__qs_callbacks.set(id, fn);
+    globalThis.__qs_callbacks.set(id, { fn: fn, name: globalThis.__qs_script_name || '' });
     return id;
 };
+globalThis.__qs_error_text = function(err) {
+    if (err === null || err === undefined) return String(err);
+    if (typeof err === 'string') return err;
+    try { if (err.stack) return String(err.stack); } catch (e) {}
+    try { if (err.message) return String(err.message); } catch (e) {}
+    try { return String(err); } catch (e) { return '<unprintable error>'; }
+};
 globalThis.__qs_invoke_cb = function(id, argJson) {
-    const fn = globalThis.__qs_callbacks.get(id);
-    if (!fn) return;
+    const rec = globalThis.__qs_callbacks.get(id);
+    if (!rec) return;
+    const fn = (typeof rec === 'function') ? rec : rec.fn;
+    const name = (typeof rec === 'function') ? '' : (rec.name || '');
+    if (typeof fn !== 'function') return;
     const arg = argJson ? JSON.parse(argJson) : undefined;
     Promise.resolve().then(() => fn(arg)).catch(err => {
-        globalThis.__qs_log('error', 'Callback error: ' + (err && err.stack ? err.stack : err));
+        const tag = name ? '[' + name + '] ' : '';
+        globalThis.__qs_log('error', tag + 'Uncaught error: ' + globalThis.__qs_error_text(err));
     });
 };
 
@@ -890,6 +918,8 @@ impl JsEngine {
             };
 
             ctx.with(|ctx| {
+                let globals = ctx.globals();
+                let _ = globals.set("__qs_script_name", file_name.clone());
                 match Module::evaluate(ctx.clone(), file_name.as_str(), code) {
                     Ok(promise) => {
                         let _ = promise.finish::<Value>();
@@ -901,12 +931,19 @@ impl JsEngine {
                     }
                     Err(e) => {
                         let err_detail = ctx.catch();
+                        let detail = match err_detail.as_object() {
+                            Some(obj) => obj
+                                .get::<_, String>("stack")
+                                .unwrap_or_else(|_| format!("{:?}", err_detail)),
+                            None => format!("{:?}", err_detail),
+                        };
                         shared.lock().unwrap().log(
                             "error",
-                            &format!("Error in {}: {} ({:?})", file_name, e, err_detail),
+                            &format!("Error in {}: {} ({})", file_name, e, detail),
                         );
                     }
                 }
+                let _ = globals.set("__qs_script_name", String::new());
             });
             while rt.is_job_pending() {
                 let _ = rt.execute_pending_job();

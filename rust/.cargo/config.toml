@@ -1,0 +1,12 @@
+# Required for the hybrid binary/Node.js module trick.
+#
+# main.js loads bin/quickscript-linux-<arch>.node with require(). Node then
+# looks up `napi_register_module_v1` with dlsym(), which reads only the dynamic
+# symbol table (.dynsym). aarch64-unknown-linux-gnu (and some x86_64 setups)
+# do not export `#[no_mangle]` symbols of an executable by default, so the
+# module fails with "Module did not self-register".
+#
+# Without this flag the build succeeds and the binary runs fine when started
+# directly, which makes the failure look random. Do not remove.
+[build]
+rustflags = ["-C", "link-arg=-Wl,--export-dynamic"]
