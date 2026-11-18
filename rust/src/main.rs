@@ -56,6 +56,7 @@ struct RespConn {
     read_timeout: Option<Duration>,
     reader: BufReader<TcpStream>,
     writer: TcpStream,
+    last_cmd: String,
 }
 
 impl RespConn {
@@ -74,6 +75,7 @@ impl RespConn {
             read_timeout,
             reader: BufReader::new(stream),
             writer,
+            last_cmd: String::new(),
         })
     }
 
@@ -138,7 +140,9 @@ impl RespConn {
                     .read_exact(&mut buf)
                     .map_err(|e| format!("Bulk read error: {}", e))?;
                 let mut crlf = [0u8; 2];
-                let _ = self.reader.read_exact(&mut crlf);
+                self.reader
+                    .read_exact(&mut crlf)
+                    .map_err(|e| format!("Bulk trailer error: {}", e))?;
                 Ok(RespValue::Bulk(String::from_utf8_lossy(&buf).to_string()))
             }
             '*' => {
@@ -156,13 +160,53 @@ impl RespConn {
         }
     }
 
+    /// Drop replies that no command claimed.
+    ///
+    /// A single unclaimed reply stays at the head of the stream and shifts every
+    /// later read by one: `get(k)` then returns the reply of the previous
+    /// command. Nothing may be pending before a new command is sent, so anything
+    /// found here belongs to an abandoned command and is discarded.
+    fn drain_stale(&mut self) {
+        let old_timeout = self.reader.get_ref().read_timeout().ok().flatten();
+        let _ = self
+            .reader
+            .get_ref()
+            .set_read_timeout(Some(Duration::from_millis(1)));
+        let mut dropped: Vec<u8> = Vec::new();
+        loop {
+            let (n, chunk) = match self.reader.fill_buf() {
+                Ok(buf) if buf.is_empty() => break,
+                Ok(buf) => (buf.len(), buf.to_vec()),
+                Err(_) => break,
+            };
+            dropped.extend_from_slice(&chunk);
+            self.reader.consume(n);
+        }
+        let _ = self.reader.get_ref().set_read_timeout(old_timeout);
+        if !dropped.is_empty() {
+            let preview: String = String::from_utf8_lossy(&dropped[..dropped.len().min(160)])
+                .replace(['\r', '\n'], " ");
+            eprintln!(
+                "[quickscript-rs] dropped {} unclaimed reply bytes (previous cmd: {}): {}",
+                dropped.len(),
+                self.last_cmd,
+                preview
+            );
+        }
+    }
+
     fn cmd(&mut self, args: &[&str]) -> Result<RespValue, String> {
+        self.drain_stale();
+        if let Some(first) = args.first() {
+            self.last_cmd = (*first).to_string();
+        }
         if self.send_cmd(args).is_ok() {
             if let Ok(res) = self.read_resp() {
                 return Ok(res);
             }
         }
         if self.reconnect() {
+            self.drain_stale();
             self.send_cmd(args)?;
             return self.read_resp();
         }
